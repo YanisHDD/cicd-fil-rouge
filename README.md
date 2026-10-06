@@ -145,6 +145,20 @@ Le job `CI OK` résout ce problème architectural :
 - La clause `if: always()` est indispensable : elle force l'évaluation du job même si un job amont échoue (sans quoi un job ignoré/skipped pourrait être comptabilisé comme réussi par défaut).
 - Il devient **l'unique check obligatoire** dans le Ruleset GitHub. On peut désormais modifier ou étendre la matrice Python à tout moment sans jamais toucher à la configuration de gouvernance du dépôt.
 
+##### Démonstration en images
+
+1. **Blocage initial par la matrice :**
+Les tests sont validés, mais le merge reste verrouillé car le Ruleset attend l'ancien statut nommé `test` :
+![Blocage initial dû au renommage par la matrice](docs/screenshots/lab2-pr-blocked-matrix.png)
+
+2. **Reconfiguration du Ruleset :**
+`CI OK` est configuré comme unique contrôle obligatoire :
+![Ruleset avec CI OK comme check requis](docs/screenshots/lab2-ruleset-ci-ok.png)
+
+3. **Déblocage de la Pull Request :**
+Le check `CI OK` est validé et déverrouille le bouton de merge :
+![Pull Request débloquée et prête au merge](docs/screenshots/lab2-pr-unlocked-ci-ok.png)
+
 #### Comparatif des temps d'installation des dépendances (avec vs sans cache)
 
 | Job | Durée d'installation sans cache | Durée d'installation avec cache | Gain constaté |
@@ -153,3 +167,8 @@ Le job `CI OK` résout ce problème architectural :
 | `test` (Python 3.11) | ~12s | ~5s | ~58% |
 | `test` (Python 3.12) | ~13s | ~5s | ~61% |
 | `test` (Python 3.13) | ~14s | ~6s | ~57% |
+
+#### Export et téléchargement des artefacts de test
+
+Les rapports de tests JUnit XML générés lors de chaque exécution sont téléchargeables sous forme d'archives zip dans l'onglet **Actions** du dépôt (section *Artifacts*).
+
