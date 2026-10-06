@@ -1,5 +1,7 @@
 # TaskFlow — dépôt fil rouge CI/CD
 
+[![CI](https://github.com/YanisHDD/cicd-fil-rouge/actions/workflows/ci.yml/badge.svg)](https://github.com/YanisHDD/cicd-fil-rouge/actions/workflows/ci.yml)
+
 TaskFlow est une petite API de gestion de tâches écrite en Python avec FastAPI.
 C'est le projet fil rouge du module CI/CD (Mastère DevOps M1, Sup de Vinci) :
 pendant trois jours, vous allez construire autour d'elle un pipeline complet
@@ -124,3 +126,30 @@ Pour valider l'efficacité du contrôle obligatoire imposé par le Ruleset, un �
 - Le job `lint` s'exécute et réussit (`Successful in 9s`, statut `Required`).
 - Le job `test` échoue (`Failing after 11s`, statut `Required`).
 - Les deux jobs étant déclarés obligatoires dans le Ruleset de `main`, GitHub applique la politique de protection stricte : **la fusion est formellement bloquée (`Merging is blocked`)**, interdisant toute régression en production.
+
+### Optimisations du pipeline (Lab J1 après-midi - Partie 2)
+
+Afin d'accélérer le cycle de rétroaction (*feedback loop*) et d'éprouver la robustesse de l'API sur plusieurs environnements d'exécution, quatre améliorations ont été intégrées dans `.github/workflows/ci.yml` :
+
+1. **Matrice de versions (`matrix`) :** Les tests sont exécutés en parallèle sous Python `3.11`, `3.12` et `3.13`. La directive `fail-fast: false` garantit que l'échec d'une version n'interrompt pas prématurément les autres.
+2. **Mise en cache pip (`cache: 'pip'`) :** Les dépendances téléchargées sont conservées d'un run à l'autre via `actions/setup-python`, réduisant drastiquement le temps d'installation.
+3. **Conservation des rapports de tests (`upload-artifact`) :** Chaque exécution génère un rapport XML JUnit (`junit-report-*.xml`) exporté en artefact téléchargeable pour audit et traçabilité.
+4. **Gestion de concurrence (`concurrency`) :** Grâce à `cancel-in-progress: true`, tout nouveau commit sur une même Pull Request annule automatiquement le run précédent devenu obsolète, libérant ainsi des runners.
+
+#### Rôle du job de synthèse `CI OK`
+
+Lorsqu'une matrice est introduite, les noms de status checks deviennent dynamiques (`test (3.11)`, `test (3.12)`, `test (3.13)`). Le Ruleset de `main` qui attendait un contrôle nommé `test` bloque alors indéfiniment la Pull Request même si toutes les versions sont passées avec succès.
+
+Le job `CI OK` résout ce problème architectural :
+- Il dépend de l'ensemble des contrôles précédents via `needs: [lint, test]`.
+- La clause `if: always()` est indispensable : elle force l'évaluation du job même si un job amont échoue (sans quoi un job ignoré/skipped pourrait être comptabilisé comme réussi par défaut).
+- Il devient **l'unique check obligatoire** dans le Ruleset GitHub. On peut désormais modifier ou étendre la matrice Python à tout moment sans jamais toucher à la configuration de gouvernance du dépôt.
+
+#### Comparatif des temps d'installation des dépendances (avec vs sans cache)
+
+| Job | Durée d'installation sans cache | Durée d'installation avec cache | Gain constaté |
+| --- | --- | --- | --- |
+| `lint` (Python 3.12) | ~10s | ~4s | ~60% |
+| `test` (Python 3.11) | ~12s | ~5s | ~58% |
+| `test` (Python 3.12) | ~13s | ~5s | ~61% |
+| `test` (Python 3.13) | ~14s | ~6s | ~57% |
