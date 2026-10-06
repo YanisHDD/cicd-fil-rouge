@@ -113,3 +113,14 @@ Un workflow d'intégration continue a été déployé dans `.github/workflows/ci
    - Exécute l'ensemble des tests avec `pytest` pour valider le bon fonctionnement de l'API TaskFlow (santé, création, recherche, marquage et suppression de tâches).
 
 Les deux jobs s'exécutent de façon concurrente et indépendante afin d'optimiser le temps global de rétroaction (*feedback loop*).
+
+### Preuve du blocage de merge lors d'un échec de test
+
+Pour valider l'efficacité du contrôle obligatoire imposé par le Ruleset, un échec volontaire a été injecté sur la branche `fix/casse-test` (assertion non respectée dans `tests/test_health.py`).
+
+![Pull Request bloquée par un test unitaire en échec](docs/screenshots/pr-blocked-test-failure.png)
+
+**Constat d'intégrité :**
+- Le job `lint` s'exécute et réussit (`Successful in 9s`, statut `Required`).
+- Le job `test` échoue (`Failing after 11s`, statut `Required`).
+- Les deux jobs étant déclarés obligatoires dans le Ruleset de `main`, GitHub applique la politique de protection stricte : **la fusion est formellement bloquée (`Merging is blocked`)**, interdisant toute régression en production.
