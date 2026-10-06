@@ -57,10 +57,39 @@ docker run --rm -p 8000:8000 taskflow
 
 ## Équipe
 
-<!-- Lab J1 : remplacez par les noms du binôme -->
-- À compléter
+- **Yanis Haddad** ([@YanisHDD](https://github.com/YanisHDD))
+- **Moustapha ElJabri** ([@hping404](https://github.com/hping404))
 
 ## Gouvernance du dépôt
 
-<!-- Lab J1 : listez les règles activées sur main, pourquoi chacune, et ajoutez la capture du push refusé -->
-À compléter.
+Pour garantir l'intégrité de la branche `main` et répondre aux exigences de traçabilité et de sécurité (Bloc 5 RNCP 40165), un **Ruleset** (`protect-main`) a été mis en place sur la branche par défaut.
+
+### Règles configurées et justifications techniques
+
+1. **Pull Request obligatoire avant tout merge (`Require a pull request before merging`) avec 1 approbation requise :**
+   - *Justification :* Empêche tout commit direct non contrôlé sur la branche de référence. Chaque changement doit être documenté, inspecté et revu par les pairs (*peer review*).
+2. **Invalidation des approbations lors de nouveaux commits (`Dismiss stale pull request approvals when new commits are pushed`) :**
+   - *Justification :* Garantit que le code fusionné est strictement celui qui a été relu. Tout nouveau commit poussé après une approbation annule celle-ci et réimpose une relecture.
+3. **Revue obligatoire par les Code Owners (`Require review from Code Owners`) :**
+   - *Justification :* Couplée au fichier `.github/CODEOWNERS`, cette règle impose que toute modification des fichiers de pipeline (`/.github/workflows/`) soit obligatoirement validée par les responsables de l'infrastructure CI/CD (@YanisHDD ou @hping404). Modifier le pipeline équivaut à modifier les règles de conformité du projet.
+4. **Interdiction des force pushes (`Block force pushes`) :**
+   - *Justification :* Préserve l'immuabilité et la traçabilité de l'arbre Git. Empêche la réécriture d'historique qui masquerait des erreurs ou des régressions.
+5. **Interdiction de suppression de branche (`Restrict deletions`) :**
+   - *Justification :* Prémunit contre toute suppression accidentelle de la branche `main`.
+6. **Bypass list vide (Aucune exception) :**
+   - *Justification :* Principe du « sas opératoire » : tous les contributeurs, y compris les administrateurs, doivent se soumettre à la revue et aux contrôles.
+
+### Preuve du blocage en push direct
+
+Une tentative de push direct sur `main` a été exécutée depuis le terminal local :
+
+![Tentative de push direct sur main refusée](docs/screenshots/push-refuse.png)
+
+**Résultat retourné par GitHub :**
+```text
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: - Changes must be made through a pull request.
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'github.com:YanisHDD/cicd-fil-rouge.git'
+```
+Le push direct est strictement rejeté, prouvant l'efficacité de la règle de protection.
