@@ -59,7 +59,7 @@ docker run --rm -p 8000:8000 taskflow
 
 - **Yanis Haddad** ([@YanisHDD](https://github.com/YanisHDD))
 - **Moustapha ElJabri** ([@hping404](https://github.com/hping404))
-
+- **Sofiane Elaouni**  ([@Soso9240](https://github.com/Soso9240))
 ## Gouvernance du dépôt
 
 Pour garantir l'intégrité de la branche `main` et répondre aux exigences de traçabilité et de sécurité (Bloc 5 RNCP 40165), un **Ruleset** (`protect-main`) a été mis en place sur la branche par défaut.
