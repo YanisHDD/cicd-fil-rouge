@@ -59,6 +59,7 @@ docker run --rm -p 8000:8000 taskflow
 
 - **Yanis Haddad** ([@YanisHDD](https://github.com/YanisHDD))
 - **Moustapha ElJabri** ([@hping404](https://github.com/hping404))
+- **Sofiane** ([@Soso9240](https://github.com/Soso9240))
 
 ## Gouvernance du dépôt
 
