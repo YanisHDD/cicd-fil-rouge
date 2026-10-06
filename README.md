@@ -59,6 +59,7 @@ docker run --rm -p 8000:8000 taskflow
 
 - **Yanis Haddad** ([@YanisHDD](https://github.com/YanisHDD))
 - **Moustapha ElJabri** ([@hping404](https://github.com/hping404))
+- **Sofiane** ([@Soso9240](https://github.com/Soso9240))
 
 ## Gouvernance du dépôt
 
@@ -93,3 +94,22 @@ remote: - Changes must be made through a pull request.
 error: failed to push some refs to 'github.com:YanisHDD/cicd-fil-rouge.git'
 ```
 Le push direct est strictement rejeté, prouvant l'efficacité de la règle de protection.
+
+## Pipeline CI
+
+Un workflow d'intégration continue a été déployé dans `.github/workflows/ci.yml`. Il est automatiquement déclenché à chaque ouverture ou mise à jour de Pull Request ciblant `main`.
+
+### Description des jobs en parallèle
+
+1. **`lint` (Contrôle qualité & formatage) :**
+   - Environnement d'exécution : `ubuntu-latest` avec Python 3.12.
+   - Installe les dépendances requises (`requirements-dev.txt`).
+   - Analyse statique avec `ruff check .` : détecte les erreurs de syntaxe, imports inutilisés et mauvaises pratiques.
+   - Contrôle du style avec `ruff format --check .` : garantit le respect de la norme PEP 8 et l'uniformité du code source.
+
+2. **`test` (Tests automatisés) :**
+   - Environnement d'exécution : `ubuntu-latest` avec Python 3.12.
+   - Installe les dépendances applicatives et d'outillage de test.
+   - Exécute l'ensemble des tests avec `pytest` pour valider le bon fonctionnement de l'API TaskFlow (santé, création, recherche, marquage et suppression de tâches).
+
+Les deux jobs s'exécutent de façon concurrente et indépendante afin d'optimiser le temps global de rétroaction (*feedback loop*).
