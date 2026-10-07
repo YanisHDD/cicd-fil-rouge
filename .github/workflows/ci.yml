@@ -57,5 +57,6 @@ jobs:
           if [ "${{ needs.lint.result }}" != "success" ] || [ "${{ needs.test.result }}" != "success" ]; then
             echo "::error::Le pipeline a échoué (lint ou tests non validés)."
             exit 1
+          else
+            echo "Tous les contrôles qualité et tests sont validés avec succès !"
           fi
-          echo "Tous les contrôles qualité et tests sont validés avec succès !"
